@@ -20,18 +20,6 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 
-# Dat kich thuoc cua so PowerShell (neu chay tren PowerShell)
-try {
-    if (-not (Get-Command wt -ErrorAction SilentlyContinue)) {
-        # Dat kich thuoc cua so (chieu rong: 80 cot, chieu cao: 25 dong)
-        [Console]::WindowWidth = 80
-        [Console]::WindowHeight = 25
-        [Console]::BufferWidth = 80
-        [Console]::BufferHeight = 300
-    }
-} catch {
-    Write-Host "Loi khi dat kich thuoc cua so: $_" -ForegroundColor Red
-}
 
 try {
     # Danh sach DNS cong cong
