@@ -1,3 +1,37 @@
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+    if ($MyInvocation.MyCommand.Path) {
+        $scriptPath = $MyInvocation.MyCommand.Path
+
+        # Kiểm tra Windows Terminal
+        $terminalPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+
+        if (Test-Path $terminalPath) {
+            Start-Process -FilePath $terminalPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        }
+        else {
+            Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        }
+    }
+    else {
+        # Chạy trực tiếp khi dùng irm | iex
+        $scriptContent = Invoke-RestMethod "https://raw.githubusercontent.com/DuyNguyen2k6/Tool/main/shutdown_timer.ps1"
+        $tempFile = "$env:TEMP\shutdown_timer.ps1"
+        $scriptContent | Out-File -FilePath $tempFile -Encoding utf8
+
+        # Kiểm tra Windows Terminal
+        $terminalPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+
+        if (Test-Path $terminalPath) {
+            Start-Process -FilePath $terminalPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$tempFile`"" -Verb RunAs
+        }
+        else {
+            Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tempFile`"" -Verb RunAs
+        }
+    }
+
+    exit
+}
+
 # Yêu cầu quyền admin và mở lại trong Windows Terminal nếu có
 if (-not ([Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
     $scriptPath = $MyInvocation.MyCommand.Definition
