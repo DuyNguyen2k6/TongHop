@@ -1,20 +1,38 @@
 # Script PowerShell: Xem va thay doi DNS, tu dong yeu cau quyen admin khi can
 # Can chinh kich thuoc cua so PowerShell vua du de hien thi noi dung
+# Kiểm tra quyền Admin và tự khởi động lại với quyền Admin bằng Terminal nếu có, fallback PowerShell (hỗ trợ irm | iex)
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+    if ($MyInvocation.MyCommand.Path) {
+        $scriptPath = $MyInvocation.MyCommand.Path
 
-# Tu dong yeu cau quyen Administrator neu chua co
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    try {
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = "powershell.exe"
-        $psi.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm 'https://raw.githubusercontent.com/DuyNguyen2k6/Tool/main/DNS%20Changer.ps1' | iex`""
-        $psi.Verb = "runas"
-        [System.Diagnostics.Process]::Start($psi) | Out-Null
-        exit
-    } catch {
-        Write-Host "Khong the khoi dong lai voi quyen Administrator: $_" -ForegroundColor Red
-        Read-Host -Prompt "Nhan Enter de thoat..."
-        exit
+        # Kiểm tra Windows Terminal
+        $terminalPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+
+        if (Test-Path $terminalPath) {
+            Start-Process -FilePath $terminalPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        }
+        else {
+            Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        }
     }
+    else {
+        # Chạy trực tiếp khi dùng irm | iex
+        $scriptContent = Invoke-RestMethod "https://raw.githubusercontent.com/DuyNguyen2k6/Tool/main/DNS%20Changer.ps1"
+        $tempFile = "$env:TEMP\DNSChanger.ps1"
+        $scriptContent | Out-File -FilePath $tempFile -Encoding utf8
+
+        # Kiểm tra Windows Terminal
+        $terminalPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+
+        if (Test-Path $terminalPath) {
+            Start-Process -FilePath $terminalPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$tempFile`"" -Verb RunAs
+        }
+        else {
+            Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tempFile`"" -Verb RunAs
+        }
+    }
+
+    exit
 }
 
 # Can chinh kich thuoc cua so PowerShell vua du de hien thi noi dung
