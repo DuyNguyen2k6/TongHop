@@ -1,7 +1,7 @@
-# Script PowerShell: Xem và thay đổi DNS, tự động yêu cầu quyền admin khi cần
-# Căn chỉnh kích thước cửa sổ PowerShell vừa đủ để hiển thị nội dung
+# Script PowerShell: Xem va thay doi DNS, tu dong yeu cau quyen admin khi can
+# Can chinh kich thuoc cua so PowerShell vua du de hien thi noi dung
 
-# Tự động yêu cầu quyền Administrator nếu chưa có
+# Tu dong yeu cau quyen Administrator neu chua co
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     try {
         $psi = New-Object System.Diagnostics.ProcessStartInfo
@@ -11,24 +11,24 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
         [System.Diagnostics.Process]::Start($psi) | Out-Null
         exit
     } catch {
-        Write-Host "Không thể khởi động lại với quyền Administrator: $_" -ForegroundColor Red
-        Read-Host -Prompt "Nhấn Enter để thoát..."
+        Write-Host "Khong the khoi dong lai voi quyen Administrator: $_" -ForegroundColor Red
+        Read-Host -Prompt "Nhan Enter de thoat..."
         exit
     }
 }
 
-# Đặt kích thước cửa sổ PowerShell vừa đủ để hiển thị nội dung
+# Can chinh kich thuoc cua so PowerShell vua du de hien thi noi dung
 try {
     [Console]::WindowWidth = 70
     [Console]::WindowHeight = 20
     [Console]::BufferWidth = 70
     [Console]::BufferHeight = 100
 } catch {
-    Write-Host "Lỗi khi đặt kích thước cửa sổ: $_" -ForegroundColor Red
+    Write-Host "Loi khi dat kich thuoc cua so: $_" -ForegroundColor Red
 }
 
 try {
-    # Danh sách DNS công cộng
+    # Danh sach DNS cong cong
     $dnsList = @{
         1 = @{ Name = "Google Public DNS"; IPv4 = "8.8.8.8,8.8.4.4" };
         2 = @{ Name = "Cloudflare DNS"; IPv4 = "1.1.1.1,1.0.0.1" };
@@ -49,40 +49,40 @@ try {
 
     while ($true) {
         Clear-Host
-        Write-Host "`n=== QUẢN LÝ DNS ===" -ForegroundColor Green
-        Write-Host "1. Hiển thị thông tin DNS"
-        Write-Host "2. Thay đổi DNS"
-        Write-Host "3. Thoát"
-        $choice = Read-Host "`nNhập lựa chọn (1-3)"
+        Write-Host "`n=== QUAN LY DNS ===" -ForegroundColor Green
+        Write-Host "1. Xem thong tin DNS"
+        Write-Host "2. Thay doi DNS"
+        Write-Host "3. Thoat"
+        $choice = Read-Host "`nNhap lua chon (1-3)"
 
         if ($choice -eq "3") {
             Clear-Host
-            Write-Host "Đã thoát chương trình." -ForegroundColor Yellow
+            Write-Host "Da thoat chuong trinh." -ForegroundColor Yellow
             break
         }
 
-        # Lấy tất cả các adapter mạng đang hoạt động
+        # Lay tat ca cac adapter mang dang hoat dong
         $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
 
         if (-not $adapters) {
-            Write-Host "Không tìm thấy adapter mạng nào đang hoạt động." -ForegroundColor Red
-            Read-Host -Prompt "Nhấn Enter để tiếp tục..."
+            Write-Host "Khong tim thay adapter mang nao dang hoat dong." -ForegroundColor Red
+            Read-Host -Prompt "Nhan Enter de tiep tuc..."
             continue
         }
 
         if ($choice -eq "1") {
-            # Hiển thị thông tin DNS
+            # Hien thi thong tin DNS
             Clear-Host
-            Write-Host "`n=== THÔNG TIN CẤU HÌNH DNS ===" -ForegroundColor Green
+            Write-Host "`n=== THONG TIN CAU HINH DNS ===" -ForegroundColor Green
             foreach ($adapter in $adapters) {
                 Write-Host "`nAdapter: $($adapter.Name)" -ForegroundColor Cyan
                 Write-Host "----------------------------"
                 
-                # Lấy thông tin DNS từ adapter
+                # Lay thong tin DNS tu adapter
                 try {
                     $dnsConfig = Get-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -ErrorAction Stop
                 } catch {
-                    Write-Host "Lỗi khi lấy thông tin DNS: $_" -ForegroundColor Red
+                    Write-Host "Loi khi lay thong tin DNS: $_" -ForegroundColor Red
                     continue
                 }
                 
@@ -91,25 +91,25 @@ try {
                     foreach ($config in $dnsConfig) {
                         if ($config.ServerAddresses) {
                             $hasConfig = $true
-                            Write-Host "Giao thức: $($config.AddressFamily)"
-                            Write-Host "Địa chỉ DNS Server:"
+                            Write-Host "Giao thuc: $($config.AddressFamily)"
+                            Write-Host "Dia chi DNS Server:"
                             foreach ($dns in $config.ServerAddresses) {
                                 Write-Host "  - $dns"
                             }
                         }
                     }
                     if (-not $hasConfig) {
-                        Write-Host "Không có DNS Server được cấu hình cho adapter này." -ForegroundColor Yellow
+                        Write-Host "Khong co DNS Server duoc cau hinh cho adapter nay." -ForegroundColor Yellow
                     }
                 } else {
-                    Write-Host "Không tìm thấy cấu hình DNS cho adapter này." -ForegroundColor Yellow
+                    Write-Host "Khong tim thay cau hinh DNS cho adapter nay." -ForegroundColor Yellow
                 }
             }
         }
         elseif ($choice -eq "2") {
-            # Thay đổi DNS
+            # Thay doi DNS
             Clear-Host
-            Write-Host "`nDanh sách adapter mạng đang hoạt động:" -ForegroundColor Cyan
+            Write-Host "`nDanh sach adapter mang dang hoat dong:" -ForegroundColor Cyan
             $index = 1
             $adapterList = @{}
             foreach ($adapter in $adapters) {
@@ -118,7 +118,7 @@ try {
                 $index++
             }
 
-            $selection = Read-Host "`nNhập số thứ tự của adapter để thay đổi DNS (1-$($index-1)), hoặc 'q' để quay lại"
+            $selection = Read-Host "`nNhap so thu tu cua adapter de thay doi DNS (1-$($index-1)), hoac 'q' de quay lai"
             if ($selection -eq 'q') {
                 continue
             }
@@ -126,16 +126,16 @@ try {
             if ($adapterList.ContainsKey([int]$selection)) {
                 $selectedAdapter = $adapterList[[int]$selection]
                 Clear-Host
-                Write-Host "`nAdapter được chọn: $($selectedAdapter.Name)" -ForegroundColor Cyan
+                Write-Host "`nAdapter duoc chon: $($selectedAdapter.Name)" -ForegroundColor Cyan
                 Write-Host "----------------------------"
 
-                # Hiển thị danh sách DNS công cộng
-                Write-Host "`nCác DNS công cộng phổ biến:" -ForegroundColor Cyan
+                # Hien thi danh sach DNS cong cong
+                Write-Host "`nCac DNS cong cong pho bien:" -ForegroundColor Cyan
                 foreach ($key in $dnsList.Keys | Sort-Object) {
                     Write-Host "$key. $($dnsList[$key].Name): $($dnsList[$key].IPv4)"
                 }
 
-                $dnsChoice = Read-Host "`nNhập số thứ tự của DNS để áp dụng (1-$($dnsList.Count)), hoặc 'q' để quay lại"
+                $dnsChoice = Read-Host "`nNhap so thu tu cua DNS de ap dung (1-$($dnsList.Count)), hoac 'q' de quay lai"
                 if ($dnsChoice -eq 'q') {
                     continue
                 }
@@ -144,23 +144,23 @@ try {
                     $selectedDNS = $dnsList[[int]$dnsChoice]
                     $ipv4DnsArray = $selectedDNS.IPv4.Split(',').Trim()
                     try {
-                        # Thay đổi DNS
+                        # Thay doi DNS
                         Set-DnsClientServerAddress -InterfaceIndex $selectedAdapter.InterfaceIndex -ServerAddresses $ipv4DnsArray -ErrorAction Stop
-                        Write-Host "Đã cập nhật DNS cho adapter $($selectedAdapter.Name) thành $($selectedDNS.Name): $($selectedDNS.IPv4)" -ForegroundColor Green
+                        Write-Host "Da cap nhat DNS cho adapter $($selectedAdapter.Name) thanh $($selectedDNS.Name): $($selectedDNS.IPv4)" -ForegroundColor Green
                         Start-Sleep -Milliseconds 1000
                     } catch {
-                        Write-Host "Lỗi khi thay đổi DNS: $_" -ForegroundColor Red
-                        Read-Host -Prompt "Nhấn Enter để tiếp tục..."
+                        Write-Host "Loi khi thay doi DNS: $_" -ForegroundColor Red
+                        Read-Host -Prompt "Nhan Enter de tiep tuc..."
                         continue
                     }
 
-                    # Hiển thị thông tin DNS sau khi cập nhật
-                    Write-Host "`nThông tin DNS sau khi cập nhật:" -ForegroundColor Cyan
+                    # Hien thi thong tin DNS sau khi cap nhat
+                    Write-Host "`nThong tin DNS sau khi cap nhat:" -ForegroundColor Cyan
                     try {
                         $dnsConfig = Get-DnsClientServerAddress -InterfaceIndex $selectedAdapter.InterfaceIndex -ErrorAction Stop
                     } catch {
-                        Write-Host "Lỗi khi lấy thông tin DNS sau cập nhật: $_" -ForegroundColor Red
-                        Read-Host -Prompt "Nhấn Enter để tiếp tục..."
+                        Write-Host "Loi khi lay thong tin DNS sau cap nhat: $_" -ForegroundColor Red
+                        Read-Host -Prompt "Nhan Enter de tiep tuc..."
                         continue
                     }
                     if ($dnsConfig) {
@@ -168,35 +168,35 @@ try {
                         foreach ($config in $dnsConfig) {
                             if ($config.ServerAddresses) {
                                 $hasConfig = $true
-                                Write-Host "Giao thức: $($config.AddressFamily)"
-                                Write-Host "Địa chỉ DNS Server:"
+                                Write-Host "Giao thuc: $($config.AddressFamily)"
+                                Write-Host "Dia chi DNS Server:"
                                 foreach ($dns in $config.ServerAddresses) {
                                     Write-Host "  - $dns"
                                 }
                             }
                         }
                         if (-not $hasConfig) {
-                            Write-Host "Không tìm thấy DNS Server được cấu hình cho adapter này sau khi cập nhật." -ForegroundColor Yellow
+                            Write-Host "Khong tim thay DNS Server duoc cau hinh cho adapter nay sau khi cap nhat." -ForegroundColor Yellow
                         }
                     } else {
-                        Write-Host "Không tìm thấy cấu hình DNS cho adapter này sau khi cập nhật." -ForegroundColor Yellow
+                        Write-Host "Khong tim thay cau hinh DNS cho adapter nay sau khi cap nhat." -ForegroundColor Yellow
                     }
                 } else {
-                    Write-Host "Lựa chọn DNS không hợp lệ." -ForegroundColor Red
+                    Write-Host "Lua chon DNS khong hop le." -ForegroundColor Red
                 }
             } else {
-                Write-Host "Lựa chọn adapter không hợp lệ." -ForegroundColor Red
+                Write-Host "Lua chon adapter khong hop le." -ForegroundColor Red
             }
         } else {
-            Write-Host "Lựa chọn không hợp lệ." -ForegroundColor Red
+            Write-Host "Lua chon khong hop le." -ForegroundColor Red
         }
 
-        Read-Host -Prompt "`nNhấn Enter để tiếp tục..."
+        Read-Host -Prompt "`nNhan Enter de tiep tuc..."
     }
 
-    Write-Host "`n=== KẾT THÚC ===" -ForegroundColor Green
+    Write-Host "`n=== KET THUC ===" -ForegroundColor Green
 } catch {
-    Write-Host "Đã xảy ra lỗi: $_" -ForegroundColor Red
+    Write-Host "Da xay ra loi: $_" -ForegroundColor Red
 } finally {
-    Read-Host -Prompt "Nhấn Enter để thoát..."
+    Read-Host -Prompt "Nhan Enter de thoat..."
 }
