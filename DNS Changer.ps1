@@ -1,5 +1,23 @@
 # Script PowerShell: Xem va thay doi DNS, tu dong yeu cau quyen admin khi can
 # Can chinh kich thuoc cua so PowerShell vua du de hien thi noi dung
+# Kiểm tra quyền Admin và tự khởi động lại với quyền Admin bằng Terminal nếu có, fallback PowerShell
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+    $scriptPath = $MyInvocation.MyCommand.Definition
+
+    # Thử kiểm tra Windows Terminal
+    $terminalPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+
+    if (Test-Path $terminalPath) {
+        # Nếu có Terminal, dùng Terminal để chạy lại script với quyền Admin
+        Start-Process -FilePath $terminalPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+    }
+    else {
+        # Nếu không có Terminal, dùng PowerShell để chạy lại script với quyền Admin
+        Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+    }
+
+    exit
+}
 
 # Tu dong yeu cau quyen Administrator neu chua co
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
