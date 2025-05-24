@@ -19,6 +19,18 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     }
 }
 
+# Đặt lại kích thước cửa sổ PowerShell (chỉ thực hiện khi không ở Windows Terminal)
+try {
+    if (-not (Get-Command wt -ErrorAction SilentlyContinue)) {
+        # Chỉ đổi kích thước nếu là cửa sổ console "classic" (không phải Windows Terminal)
+        [Console]::WindowWidth = 80
+        [Console]::WindowHeight = 25
+        [Console]::BufferWidth = 80
+        [Console]::BufferHeight = 300
+    }
+} catch {
+    Write-Host "Lỗi khi đặt kích thước cửa sổ: $_" -ForegroundColor Red
+}
 
 
 try {
