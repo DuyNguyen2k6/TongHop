@@ -34,16 +34,22 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
     exit
 }
-
-# Can chinh kich thuoc cua so PowerShell vua du de hien thi noi dung
-try {
-    [Console]::WindowWidth = 70
-    [Console]::WindowHeight = 20
-    [Console]::BufferWidth = 70
-    [Console]::BufferHeight = 100
-} catch {
-    Write-Host "Loi khi dat kich thuoc cua so: $_" -ForegroundColor Red
+# Tu dong yeu cau quyen Administrator neu chua co
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    try {
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = "powershell.exe"
+        $psi.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm 'https://raw.githubusercontent.com/DuyNguyen2k6/Tool/main/DNS%20Changer.ps1' | iex`""
+        $psi.Verb = "runas"
+        [System.Diagnostics.Process]::Start($psi) | Out-Null
+        exit
+    } catch {
+        Write-Host "Khong the khoi dong lai voi quyen Administrator: $_" -ForegroundColor Red
+        Read-Host -Prompt "Nhan Enter de thoat..."
+        exit
+    }
 }
+
 
 try {
     # Danh sach DNS cong cong
