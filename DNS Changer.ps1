@@ -1,7 +1,7 @@
 # Script PowerShell de xem va thay doi DNS
 # Chay tren Windows Terminal neu co, neu khong chay tren PowerShell
 # Tu dong yeu cau quyen Administrator, lam moi man hinh, dat kich thuoc cua so nho hon
-# Sua loi hien thi DNS sau khi thay doi
+# Sua loi hien thi DNS va xu ly duong dan file chinh xac
 
 # Kiem tra quyen Administrator
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -12,12 +12,14 @@ if (-not $isAdmin) {
         # Kiem tra xem Windows Terminal co cai dat khong
         $wtExists = Get-Command wt -ErrorAction SilentlyContinue
         $scriptPath = $MyInvocation.MyCommand.Path
+        # Thoat ky tu trong duong dan de tranh loi
+        $escapedScriptPath = $scriptPath -replace '"', '""'
         if ($wtExists) {
             # Chay script trong Windows Terminal voi quyen Administrator
-            Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+            Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$escapedScriptPath`""
         } else {
             # Chay script trong PowerShell voi quyen Administrator
-            Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+            Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$escapedScriptPath`""
         }
         exit
     } catch {
