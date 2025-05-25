@@ -90,3 +90,7 @@ do {
 } while ($choice -ne "0")
 
 Write-Host ">> Exiting program." -ForegroundColor Gray
+Write-Host ""
+Write-Host "Press Enter to return to the main menu..." -ForegroundColor Gray
+[void][System.Console]::ReadLine()
+

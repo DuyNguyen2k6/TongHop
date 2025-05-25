@@ -134,3 +134,6 @@ do {
     }
 
 } while ($choice -ne "0")
+Write-Host ""
+Write-Host "Press Enter to return to the main menu..." -ForegroundColor Gray
+[void][System.Console]::ReadLine()

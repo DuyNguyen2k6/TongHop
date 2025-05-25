@@ -61,3 +61,6 @@ do {
         default { Write-Host "Invalid option. Try again." -ForegroundColor Red; Pause }
     }
 } while ($choice -ne "4")
+Write-Host ""
+Write-Host "Press Enter to return to the main menu..." -ForegroundColor Gray
+[void][System.Console]::ReadLine()

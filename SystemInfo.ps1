@@ -98,3 +98,6 @@ if ($Host.Name -eq "ConsoleHost") {
     Write-Host "`nScript completed. Press any key to exit..." -ForegroundColor Yellow
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
+Write-Host ""
+Write-Host "Press Enter to return to the main menu..." -ForegroundColor Gray
+[void][System.Console]::ReadLine()

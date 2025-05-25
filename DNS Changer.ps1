@@ -224,3 +224,6 @@ try {
 } finally {
     Read-Host -Prompt "Nhan Enter de thoat..."
 }
+Write-Host ""
+Write-Host "Press Enter to return to the main menu..." -ForegroundColor Gray
+[void][System.Console]::ReadLine()
