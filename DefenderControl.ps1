@@ -1,3 +1,19 @@
+# --- Auto-elevate: Support for "irm ... | iex" (no physical file) ---
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+    # Tạo file tạm chứa nội dung script hiện tại
+    $code = $MyInvocation.MyCommand.ScriptBlock.ToString()
+    $temp = [IO.Path]::GetTempFileName() -replace '.tmp$', '.ps1'
+    Set-Content -Path $temp -Value $code -Encoding UTF8
+    # Mở lại với quyền admin qua Windows Terminal nếu có
+    $wtPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+    if (Test-Path $wtPath) {
+        Start-Process -FilePath $wtPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$temp`"" -Verb RunAs
+    } else {
+        Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$temp`"" -Verb RunAs
+    }
+    exit
+}
+
 # Auto elevate to Admin using Windows Terminal if available
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
     $scriptPath = $MyInvocation.MyCommand.Definition
