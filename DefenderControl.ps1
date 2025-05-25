@@ -1,4 +1,28 @@
-
+# --- Auto-elevate: Support for "irm ... | iex" and physical file ---
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+    if ($MyInvocation.MyCommand.Path) {
+        # Trường hợp chạy từ file .ps1 vật lý
+        $scriptPath = $MyInvocation.MyCommand.Path
+        $wtPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+        if (Test-Path $wtPath) {
+            Start-Process -FilePath $wtPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        } else {
+            Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        }
+    } else {
+        # Trường hợp chạy bằng irm ... | iex (không có file vật lý)
+        $code = $MyInvocation.MyCommand.ScriptBlock.ToString()
+        $temp = [IO.Path]::GetTempFileName() -replace '.tmp$', '.ps1'
+        Set-Content -Path $temp -Value $code -Encoding UTF8
+        $wtPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+        if (Test-Path $wtPath) {
+            Start-Process -FilePath $wtPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$temp`"" -Verb RunAs
+        } else {
+            Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$temp`"" -Verb RunAs
+        }
+    }
+    exit
+}
 
 
 function Show-Status {
