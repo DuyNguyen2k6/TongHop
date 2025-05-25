@@ -14,18 +14,6 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     exit
 }
 
-# Auto elevate to Admin using Windows Terminal if available
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
-    $scriptPath = $MyInvocation.MyCommand.Definition
-    $wtPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
-
-    if (Test-Path $wtPath) {
-        Start-Process -FilePath $wtPath -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
-    } else {
-        Start-Process -FilePath "powershell" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
-    }
-    exit
-}
 
 function Show-Status {
     $realTime = (Get-MpPreference).DisableRealtimeMonitoring
