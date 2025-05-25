@@ -27,6 +27,8 @@ function Show-Menu {
     Clear-Host
     Write-Host "========= WINDOWS TOOLKIT MENU ==========" -ForegroundColor Cyan
     Write-Host ""
+    Write-Host  "============== DuyNguyen2k6 ==============="
+    Write-Host ""
     Write-Host "1. System Information"        -ForegroundColor Green
     Write-Host "2. Defender Control"          -ForegroundColor Yellow
     Write-Host "3. Windows Tool (All-in-one)" -ForegroundColor Blue
