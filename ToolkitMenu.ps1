@@ -25,10 +25,9 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 }
 function Show-Menu {
     Clear-Host
+    Write-Host "--------------------------------------------------------------------------"-ForegroundColor Cyan
     Write-Host "========= WINDOWS TOOLKIT MENU ==========" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host  "============== DuyNguyen2k6 ===============" -ForegroundColor Black
-    Write-Host ""
+    Write-Host "--------------------------------------------------------------------------"-ForegroundColor Cyan
     Write-Host "1. System Information"        -ForegroundColor Green
     Write-Host "2. Defender Control"          -ForegroundColor Yellow
     Write-Host "3. Windows Tool (All-in-one)" -ForegroundColor Blue
