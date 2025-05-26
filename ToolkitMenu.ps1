@@ -47,10 +47,13 @@ function Show-Menu {
 }
 
 function Download-And-Run-Speedtest {
-    $url = "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-win64.zip"  # Cập nhật link mới nhất ở đây nếu cần
-    $dest = "$env:TEMP\speedtest.exe"
-    $zip = "$env:TEMP\speedtest.zip"
-    $extractDir = "$env:TEMP\speedtest_extracted"
+    $destDir = "$env:LOCALAPPDATA\SpeedtestCLI"
+    if (!(Test-Path $destDir)) { New-Item -Path $destDir -ItemType Directory | Out-Null }
+
+    $dest = "$destDir\speedtest.exe"
+    $zip = "$destDir\speedtest.zip"
+    $extractDir = "$destDir\speedtest_extracted"
+    $url = "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-win64.zip"  # Cập nhật link mới nhất nếu cần
 
     if (-Not (Test-Path $dest)) {
         Write-Host "Downloading Speedtest CLI from Ookla..." -ForegroundColor Cyan
