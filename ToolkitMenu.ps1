@@ -39,10 +39,49 @@ function Show-Menu {
     Write-Host "2. Defender Control" -ForegroundColor Green
     Write-Host "3. Driver Backup" -ForegroundColor Blue
     Write-Host "4. Schedule Shutdown" -ForegroundColor Magenta
-    Write-Host "5. Run MAS_AIO (Activate Windows/Office)" -ForegroundColor DarkCyan
+    Write-Host "5. Activate Windows/Office" -ForegroundColor DarkCyan
     Write-Host "6. Clean Temp folder" -ForegroundColor Red
-    Write-Host "m. Exit" -ForegroundColor Gray
+    Write-Host "7. Open Disk Cleanup" -ForegroundColor DarkYellow
+    Write-Host "8. Speed Test " -ForegroundColor Green
+    
 }
+
+function Download-And-Run-Speedtest {
+    $url = "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-win64.zip"  # Cập nhật link mới nhất ở đây nếu cần
+    $dest = "$env:TEMP\speedtest.exe"
+    $zip = "$env:TEMP\speedtest.zip"
+    $extractDir = "$env:TEMP\speedtest_extracted"
+
+    if (-Not (Test-Path $dest)) {
+        Write-Host "Downloading Speedtest CLI from Ookla..." -ForegroundColor Cyan
+        Invoke-WebRequest -Uri $url -OutFile $zip
+        Write-Host "Extracting..." -ForegroundColor Yellow
+        Expand-Archive -Path $zip -DestinationPath $extractDir -Force
+        $exeFile = Get-ChildItem -Path $extractDir -Filter speedtest.exe -Recurse | Select-Object -First 1
+        if ($exeFile) {
+            Move-Item -Path $exeFile.FullName -Destination $dest -Force
+        } else {
+            Write-Host "speedtest.exe not found after extracting. Please check the ZIP file." -ForegroundColor Red
+            return
+        }
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        Remove-Item $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+    } else {
+        Write-Host "Speedtest CLI already downloaded. Skipping download..." -ForegroundColor Green
+    }
+    Write-Host "Running Speedtest CLI..." -ForegroundColor Cyan
+    & $dest
+    Write-Host "Press Enter to return to menu..." -ForegroundColor Gray
+    [void][System.Console]::ReadLine()
+}
+
+function Open-DiskCleanup {
+    Write-Host "Opening Disk Cleanup..." -ForegroundColor Cyan
+    Start-Process "cleanmgr.exe"
+    Write-Host "Disk Cleanup launched. Press Enter to return to menu..." -ForegroundColor Gray
+    [void][System.Console]::ReadLine()
+}
+
 
 function Clean-TempFolder {
     $temp = $env:TEMP
@@ -403,7 +442,8 @@ while ($true) {
         "4" { Show-ShutdownScheduler }
         "5" { Run-MAS }
         "6" { Clean-TempFolder }
-        "m" { break }
+        "7" { Open-DiskCleanup }
+        "8" { Download-And-Run-Speedtest }
         default { Write-Host "Invalid selection, please try again." -ForegroundColor Red }
     }
 }
